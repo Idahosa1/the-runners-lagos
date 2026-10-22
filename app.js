@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initHeaderScroll();
   initMobileMenu();
   initNextRunCountdown();
+  initStatCounters();
   initCalendarFilter();
   initFaqAccordion();
   initRsvpModal();
@@ -140,6 +141,99 @@ function initNextRunCountdown() {
 
   update();
   setInterval(update, 1000);
+}
+
+/* ═══════════════════════════════════════════════════════
+   3B. STAT CARDS TWEENING COUNTERS
+   Calibrated deceleration curve: easeOutCubic
+   A11y: Respects prefers-reduced-motion
+   Triggers once via IntersectionObserver
+   ═══════════════════════════════════════════════════════ */
+function initStatCounters() {
+  const statsGrid = document.querySelector('.stats-showcase-grid');
+  if (!statsGrid) return;
+
+  const countElements = statsGrid.querySelectorAll('.stat-count[data-target]');
+  if (!countElements.length) return;
+
+  // A11y: Respect user's motion preference
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReduced) {
+    countElements.forEach(el => {
+      const target = parseFloat(el.dataset.target || '0');
+      el.textContent = target.toLocaleString('en-US');
+    });
+    return;
+  }
+
+  let hasAnimated = false;
+
+  function runCounterAnimation() {
+    if (hasAnimated) return;
+    hasAnimated = true;
+
+    const duration = 1500; // 1.5s calibrated deceleration
+    const startTime = performance.now();
+
+    // Ease-out cubic: fast initial surge, smooth tactile deceleration to halt
+    function easeOutCubic(t) {
+      return 1 - Math.pow(1 - t, 3);
+    }
+
+    const items = Array.from(countElements).map(el => {
+      const target = parseFloat(el.dataset.target || '0');
+      const start = parseFloat(el.dataset.start ?? '0');
+      const box = el.closest('.stat-box');
+      return { el, start, target, box, diff: target - start };
+    });
+
+    // Set start values immediately before animation begins
+    items.forEach(item => {
+      item.el.textContent = Math.round(item.start).toLocaleString('en-US');
+    });
+
+    function step(currentTime) {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(1, elapsed / duration);
+      const eased = easeOutCubic(progress);
+
+      items.forEach(item => {
+        if (progress >= 1) {
+          item.el.textContent = item.target.toLocaleString('en-US');
+          if (item.box && !item.box.classList.contains('is-counted')) {
+            item.box.classList.add('is-counted');
+          }
+        } else {
+          const current = Math.round(item.start + item.diff * eased);
+          item.el.textContent = current.toLocaleString('en-US');
+        }
+      });
+
+      if (progress < 1) {
+        requestAnimationFrame(step);
+      }
+    }
+
+    requestAnimationFrame(step);
+  }
+
+  // Trigger upon viewport entrance
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(
+      (entries, obs) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            runCounterAnimation();
+            obs.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.25, rootMargin: '0px 0px -30px 0px' }
+    );
+    observer.observe(statsGrid);
+  } else {
+    runCounterAnimation();
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════
