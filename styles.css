@@ -280,9 +280,9 @@ img, video {
   transform: scale(0.97);
 }
 
-/* Primary Button with Sunrise Flare */
+/* Primary Button (#FF5E36 Primary Color) */
 .btn-primary {
-  background: var(--gradient-sunrise);
+  background: #ff5e36;
   color: #ffffff;
   padding: 0.65rem 1.35rem;
   padding-inline-end: 1.25rem; /* Optical balance for end icon */
@@ -291,6 +291,7 @@ img, video {
 }
 
 .btn-primary:hover {
+  background: #ff481d;
   box-shadow: 0 6px 26px rgba(255, 94, 54, 0.55);
   transform: translateY(-1px);
 }
