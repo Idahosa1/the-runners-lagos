@@ -1155,6 +1155,7 @@ section {
   overflow: hidden;
   background: #111;
   height: 320px;
+  outline: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .photo-card.col-4 { grid-column: span 4; }
@@ -1171,6 +1172,54 @@ section {
 
 .photo-card:hover .photo-img {
   transform: scale(1.05);
+}
+
+/* Stories / Film Roll Appear Animation (Emil Kowalski & Jakub Krehel Standards) */
+.photo-grid.has-appear-anim .photo-card {
+  opacity: 0;
+  transform: translateY(28px) scale(0.97);
+  filter: blur(4px);
+  transition: transform 650ms var(--ease-out),
+              opacity 500ms var(--ease-out),
+              filter 550ms var(--ease-out);
+  will-change: transform, opacity, filter;
+}
+
+.photo-grid.has-appear-anim .photo-card.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  filter: blur(0);
+}
+
+/* Staggered entrance timing */
+.photo-grid.has-appear-anim .photo-card:nth-child(1) { transition-delay: 0ms; }
+.photo-grid.has-appear-anim .photo-card:nth-child(2) { transition-delay: 120ms; }
+.photo-grid.has-appear-anim .photo-card:nth-child(3) { transition-delay: 240ms; }
+.photo-grid.has-appear-anim .photo-card:nth-child(4) { transition-delay: 360ms; }
+
+/* Cinematic film-roll image development */
+.photo-grid.has-appear-anim .photo-card .photo-img {
+  transform: scale(1.08);
+  transition: transform 800ms var(--ease-out);
+}
+
+.photo-grid.has-appear-anim .photo-card.is-visible .photo-img {
+  transform: scale(1);
+}
+
+.photo-grid.has-appear-anim .photo-card.is-visible:hover .photo-img {
+  transform: scale(1.05);
+  transition: transform 450ms var(--ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .photo-grid.has-appear-anim .photo-card,
+  .photo-grid.has-appear-anim .photo-card .photo-img {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    transition: none !important;
+  }
 }
 
 .photo-overlay {

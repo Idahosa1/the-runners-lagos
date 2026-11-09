@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initMobileMenu();
   initNextRunCountdown();
   initStatCounters();
+  initStoriesAppearAnimation();
   initCalendarFilter();
   initFaqAccordion();
   initRsvpModal();
@@ -233,6 +234,50 @@ function initStatCounters() {
     observer.observe(statsGrid);
   } else {
     runCounterAnimation();
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   3C. STORIES / FILM ROLL APPEAR ANIMATIONS
+   Staggered entrance with calibrated deceleration (var(--ease-out))
+   A11y: Respects prefers-reduced-motion
+   Single-fire via IntersectionObserver
+   ═══════════════════════════════════════════════════════ */
+function initStoriesAppearAnimation() {
+  const photoGrid = document.querySelector('#stories .photo-grid');
+  if (!photoGrid) return;
+
+  const cards = photoGrid.querySelectorAll('.photo-card');
+  if (!cards.length) return;
+
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReduced) {
+    cards.forEach(card => card.classList.add('is-visible'));
+    return;
+  }
+
+  // Enable animation styles progressively
+  photoGrid.classList.add('has-appear-anim');
+
+  function revealStories() {
+    cards.forEach(card => card.classList.add('is-visible'));
+  }
+
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(
+      (entries, obs) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            revealStories();
+            obs.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.15, rootMargin: '0px 0px -40px 0px' }
+    );
+    observer.observe(photoGrid);
+  } else {
+    revealStories();
   }
 }
 
