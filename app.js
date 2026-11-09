@@ -239,9 +239,10 @@ function initStatCounters() {
 
 /* ═══════════════════════════════════════════════════════
    3C. STORIES / FILM ROLL APPEAR ANIMATIONS
+   Bidirectional scroll-triggered entrance (upward & downward)
    Staggered entrance with calibrated deceleration (var(--ease-out))
    A11y: Respects prefers-reduced-motion
-   Single-fire via IntersectionObserver
+   Continuous viewport intersection observer
    ═══════════════════════════════════════════════════════ */
 function initStoriesAppearAnimation() {
   const photoGrid = document.querySelector('#stories .photo-grid');
@@ -259,25 +260,24 @@ function initStoriesAppearAnimation() {
   // Enable animation styles progressively
   photoGrid.classList.add('has-appear-anim');
 
-  function revealStories() {
-    cards.forEach(card => card.classList.add('is-visible'));
-  }
-
   if ('IntersectionObserver' in window) {
     const observer = new IntersectionObserver(
-      (entries, obs) => {
+      (entries) => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
-            revealStories();
-            obs.unobserve(entry.target);
+            entry.target.classList.add('is-visible');
+          } else {
+            // Reset when scrolled past or away so upward & downward scrolling re-triggers the appear animation
+            entry.target.classList.remove('is-visible');
           }
         });
       },
-      { threshold: 0.15, rootMargin: '0px 0px -40px 0px' }
+      { threshold: 0.12, rootMargin: '0px 0px -30px 0px' }
     );
-    observer.observe(photoGrid);
+
+    cards.forEach(card => observer.observe(card));
   } else {
-    revealStories();
+    cards.forEach(card => card.classList.add('is-visible'));
   }
 }
 

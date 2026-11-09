@@ -1191,11 +1191,17 @@ section {
   filter: blur(0);
 }
 
-/* Staggered entrance timing */
-.photo-grid.has-appear-anim .photo-card:nth-child(1) { transition-delay: 0ms; }
-.photo-grid.has-appear-anim .photo-card:nth-child(2) { transition-delay: 120ms; }
-.photo-grid.has-appear-anim .photo-card:nth-child(3) { transition-delay: 240ms; }
-.photo-grid.has-appear-anim .photo-card:nth-child(4) { transition-delay: 360ms; }
+/* Staggered entrance timing on reveal */
+.photo-grid.has-appear-anim .photo-card.is-visible:nth-child(1) { transition-delay: 0ms; }
+.photo-grid.has-appear-anim .photo-card.is-visible:nth-child(2) { transition-delay: 100ms; }
+.photo-grid.has-appear-anim .photo-card.is-visible:nth-child(3) { transition-delay: 200ms; }
+.photo-grid.has-appear-anim .photo-card.is-visible:nth-child(4) { transition-delay: 300ms; }
+
+/* Reset transition immediately when scrolled out of viewport so it re-triggers cleanly */
+.photo-grid.has-appear-anim .photo-card:not(.is-visible) {
+  transition-delay: 0ms !important;
+  transition-duration: 200ms;
+}
 
 /* Cinematic film-roll image development */
 .photo-grid.has-appear-anim .photo-card .photo-img {
